@@ -116,6 +116,7 @@ const APP_VERSION: usize = 201;
 
 // mod wh_util;
 fn main() -> Result<()> {
+
     // 处理命令行
     handle_dat::handle_commandLine();
     config::initialize_config();

@@ -243,7 +243,7 @@ pub fn main_init() ->Option<fltk::window::DoubleWindow> {
     let mut button_sync = gui_util::ImgPreview::new_border(222+15+30, 18, 32, 32, include_str!("./src/icon_sync.svg"));
     let mut button_about = gui_util::ImgPreview::new_border(222+50+15+30, 18, 32, 32, include_str!("./src/icon_about.svg"));
     // let mut button_sync = gui_util::ImgPreview::new_border(222+100+15, 18, 32, 32, include_str!("./src/icon_sync.svg"));
-
+   
     win.handle({
         let mut x = 0;
         let mut y = 0;
