@@ -1,6 +1,6 @@
 #![allow(warnings, unused)]
 
-// #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 use chrono::Local;
 use glob::glob;
@@ -150,7 +150,7 @@ fn main() -> Result<()> {
     // 窗口部分
     thread::spawn(move || {
         // 创建窗口
-        let appMain = app::App::default();
+        let app_main = app::App::default();
         // gui_donation_ui::main_init();
         gui_main_ui::main_init();
         
@@ -160,7 +160,7 @@ fn main() -> Result<()> {
             
         }
 
-        appMain.run().unwrap();
+        app_main.run().unwrap();
     });
 
     println!("程序初始化成功");

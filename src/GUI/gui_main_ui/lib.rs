@@ -211,7 +211,7 @@ pub fn push_sql_export_dir_path(name: &str, export_dir: &str, task_command: &str
 
 pub fn eq_next() -> bool {
     (config::is_developer()
-        || (libWxIkunPlus::hasWeChat() && libWxIkunPlus::hasWeChatWin()))
+        || (libWxIkunPlus::hasWeChat() || libWxIkunPlus::hasWeChatWin()))
 }
 
 // 测试

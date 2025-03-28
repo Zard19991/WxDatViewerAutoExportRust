@@ -3,7 +3,6 @@
 use crate::{libWxIkunPlus, set_bool, APP_DB_NAME};
 use chrono::Local;
 use core::sync::atomic::Ordering;
-use std::arch::x86_64::CpuidResult;
 use fltk::app::handle;
 use fltk::button::Button;
 use fltk::draw::font;

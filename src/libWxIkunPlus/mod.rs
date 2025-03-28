@@ -8,6 +8,9 @@ use std::ffi::{c_int, c_long, c_uint, c_void, OsStr};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::{env, thread};
+use regex::Replacer;
+use winapi::um::winuser::FindWindowW;
+use windows::core::PCWSTR;
 
 pub type PCSTR = *const c_char;
 
@@ -345,10 +348,10 @@ pub fn error<T: util::OverloadedAnyStr>(title: T, message: T) {
 }
 
 pub enum HKEY {
-    HKEY_CLASSES_ROOT = 0x80000000,
-    HKEY_CURRENT_USER = 0x80000001,
-    HKEY_LOCAL_MACHINE = 0x80000002,
-    HKEY_USERS = 0x80000003,
+    HKEY_CLASSES_ROOT = 0x80000000i64 as isize,
+    HKEY_CURRENT_USER = 0x80000001i64 as isize,
+    HKEY_LOCAL_MACHINE = 0x80000002i64 as isize,
+    HKEY_USERS = 0x80000003i64 as isize,
 }
 
 pub fn getRegistrValue(hKey: HKEY, subKey: String, valueKey: String) -> String {
@@ -413,8 +416,47 @@ pub fn setWindowShake(hWnd: i128) {
     unsafe { _setWindowShake(hWnd as i32) }
 }
 
+
 // 搜索窗口
+pub fn findWindow2(className: String, titleName: String) -> i128 {
+    let mut hwnd: i128 = 0;
+    unsafe {
+        let mut class_utf16:Option<PCWSTR> = Option::None;
+        let mut title_utf16:Option<PCWSTR> = Option::None;
+
+        if(!className.is_empty()){
+            let mut name_utf16_t: Vec<u16> = className.encode_utf16().collect();
+            name_utf16_t.push(0);
+            class_utf16 = Option::Some(PCWSTR::from_raw(name_utf16_t.as_ptr())) ;
+        }else {
+            class_utf16 = Some(PCWSTR::null());
+        }
+
+        if(!titleName.is_empty()){
+            let mut title_utf16_t: Vec<u16> = titleName.encode_utf16().collect();
+            title_utf16_t.push(0);
+            title_utf16 =  Option::Some(PCWSTR::from_raw(title_utf16_t.as_ptr()));
+        }else {
+            title_utf16 = Some(PCWSTR::null());
+        }
+
+        if(!className.is_empty()&&!titleName.is_empty()){
+            return hwnd;
+        }
+
+        if(!className.is_empty()&&titleName.is_empty()){
+            let hwnd_temp = unsafe {FindWindowW(class_utf16.unwrap().as_ptr(),title_utf16.unwrap().as_ptr()) };
+            return hwnd_temp as i128;
+        }
+    }
+
+    return hwnd;
+}
+
 pub fn findWindow<T: util::OverloadedAnyStr>(className: T, titleName: T) -> i128 {
+
+    return findWindow2(className.to_string().unwrap(),titleName.to_string().unwrap());
+
     let mut hwnd: i128 = 0;
     unsafe {
         let mut className = rust_string_to_ansi_str(className.to_string_default());
@@ -424,11 +466,10 @@ pub fn findWindow<T: util::OverloadedAnyStr>(className: T, titleName: T) -> i128
             className.as_ptr(),
             titleName.as_ptr(), /*,className_len as i32,titleName_len as i32 */
         )
-        .into();
+            .into();
     }
     return hwnd;
 }
-
 // // 搜索窗口
 // pub fn findWindowU8(className: String, titleName: String)->i128 {
 //     let mut hwnd:i128 = 0;

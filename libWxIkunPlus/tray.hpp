@@ -315,6 +315,7 @@ namespace hmc_tray
             hNewIcon = ExtractIconA(GetModuleHandleA(NULL), (LPCSTR)Icons.c_str(), (UINT)index);
             if (hNewIcon != NULL)
             {
+                nid.hIcon = NULL;
                 nid.hIcon = hNewIcon;
                 return Shell_NotifyIconA(NIM_MODIFY, &nid);
             }
@@ -373,18 +374,21 @@ namespace hmc_tray
     // 结束托盘
     bool close()
     {
+        try
+        {
         Shell_NotifyIconA(NIM_DELETE, &nid);
         CloseWindow(PuppetTrayWindowHwnd);
+        }
+        HMC_CHECK_CATCH;
 
         try
         {
             PostThreadMessage(GetThreadId(__tray_worker->native_handle()), WM_QUIT, NULL, NULL);
-            __tray_worker->join();
-            delete __tray_worker;
+            //__tray_worker->join();
+            //delete __tray_worker;
             __tray_worker = nullptr;
-        }
+        }HMC_CHECK_CATCH;
 
-        HMC_CHECK_CATCH;
         try
         {
             ___Start_hmc_Tray = false;

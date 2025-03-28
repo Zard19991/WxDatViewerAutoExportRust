@@ -87,5 +87,28 @@
         "version": "2.0.0",
         "version_code": 201,
         "time": "2023-10-29"
-    }
+    },{
+    "assets": [
+        {
+            "url": "",
+            "name": "libWxIkunPlus.dll",
+            "sha1": "a8b90fbdc671b79b9d2f36b13937562daac3c8bb",
+            "sha256": "71ab58f62a508cd847538300c8a777b78adc6f9fb6ad9af1aa7208587ab10f00",
+            "size": 321024
+        },
+        {
+            "url": "",
+            "name": "WxDatViewerAutoExportRust.exe",
+            "sha256": "38e30d05eea668c3888e1a3f4109badce2022658a8fc4767fd85e942a1943d41",
+            "sha1": "ca5a34825a9017acae0bcd9e2f041565f1d2c27b",
+            "size": 11175424
+        }
+    ],
+    "url": "https://github.com/kihlh/WxDatViewerAutoExportRust/releases/download/2.0.0/WxAutoExIm_v2.0.0_win32_x86.zip",
+    "download_url": "https://github.com/kihlh/WxDatViewerAutoExportRust/releases/tag/2.0.0",
+    "name": "WxAutoExIm",
+    "version": "2.0.0",
+    "version_code": 201,
+    "time": "2025-03-28"
+}
 ]

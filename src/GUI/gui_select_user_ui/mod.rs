@@ -1261,7 +1261,7 @@ pub fn manage_tool_main (sender:Option< Sender<String> > ) -> String {
                         select_attach_card.gc();
 
                         if !user_select_database_dir_input.value().is_empty() {
-                            if (!libWxIkunPlus::hasWeChat() || !libWxIkunPlus::hasWeChatWin()) {
+                            if (!libWxIkunPlus::hasWeChat() && !libWxIkunPlus::hasWeChatWin()) {
                                 // fltk::dialog::alert_default("尚未找到已经登录的WX进程 为避免滥用 扫描被拒绝 ");
                                 gui_util::message::sub_message(hwnd, gui_util::message::IconType::Failure, "WX未登录 为避免滥用 面板开启请求被拒绝", 3500u64);
                                 return false;

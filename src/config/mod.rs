@@ -11,7 +11,7 @@ use crate::{atomic_util, get_bool, global_var, global_var_util, libWxIkunPlus, s
 // 配置常量
 
 // 启用开发者模式（此处为false 配置文件中的开发者模式将被忽略）
-pub(crate) const APP_ENABLE_DEVELOPER: bool = true;
+pub(crate) const APP_ENABLE_DEVELOPER: bool = false;
 // 编译到52破解版本
 const APP_BUILD_52POJIE: bool = false;
 

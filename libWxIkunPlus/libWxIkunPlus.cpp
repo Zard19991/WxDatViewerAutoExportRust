@@ -7,7 +7,9 @@
 #include "./usb.hpp"
 #include "./window.hpp"
 #include "./process_lib.hpp"
+#include "./json.hpp"
 #include <thread>
+using json = nlohmann::json;
 
 #define HMC_CHECK_CATCH catch (char *err){};
 HWND winmian = NULL;
@@ -171,8 +173,9 @@ void _setWindowShake(long hwnds) {
 
 void _setTaskbarWin(long hwnds) {
     HWND main = HWND(hwnds);
-    hmc_window::removeWindowFrame(main);
-    hmc_window::setMoveWindow(main, -66666, -666666, 1, 1);
+    //hmc_window::removeWindowFrame(main);
+    //hmc_window::setMoveWindow(main, -66666, -666666, 1, 1);
+    MoveWindow(main, -66666, -666666, 1, 1,true);
     UpdateWindow(main);
     hmc_window::setWindowTransparent(main, 0);
     string execPath = getProcessidFilePath(_getpid());
@@ -198,11 +201,10 @@ void _set_tray()
     string execPath = getProcessidFilePath(_getpid());
     hmc_window::setWindowIcon(winmian, execPath, 0);
     hmc_tray::start();
-    hmc_tray::setTrayIcon(execPath, 0);
     ikun_user_auto_disable_sync = hmc_registr::hasRegistrKey(HKEY_CURRENT_USER, "SOFTWARE\\WxAutoExIm", "auto_sync");
      _hasStartup();
    
-    hmc_tray::addMenuItem(hmc_tray::Menu::check("自动同步", "btn::auto_sync", ikun_user_auto_disable_sync));
+     hmc_tray::addMenuItem(hmc_tray::Menu::check("自动同步", "btn::auto_sync", ikun_user_auto_disable_sync));
      hmc_tray::addMenuItem(hmc_tray::Menu::check("开机启动", "btn::app_startup", ikun_app_startup));
      hmc_tray::addMenuItem(hmc_tray::Menu::menu("立即同步", "btn::auto_sync_token"));
      hmc_tray::addMenuItem(hmc_tray::Menu::separator("btn::separator::01"));
@@ -258,6 +260,10 @@ void _set_tray()
 
                        exit(0);
                    });
+
+    hmc_tray::setTrayIcon(execPath, 0);
+    Sleep(5);
+    hmc_tray::setTrayIcon(execPath, 0);
 }
 
 bool _setCloseWindow(long hwnds, bool force)
@@ -398,6 +404,33 @@ bool _hasStartup()
 bool _hasStartupGlobalVar()
 {
     return ikun_app_startup;
+}
+
+std::string removeNullCharacters(std::string input) {
+    string data = string();
+    for (size_t i = 0; i < input.size(); i++)
+    {
+        auto it = input[i];
+
+        if (it == '\0')continue;
+
+        data.push_back(it);
+    }
+    return data;
+}
+
+
+std::wstring removeNullCharacters(std::wstring input) {
+    wstring data = wstring();
+    for (size_t i = 0; i < input.size(); i++)
+    {
+        auto it = input[i];
+
+        if (it == '\0')continue;
+
+        data.push_back(it);
+    }
+    return data;
 }
 
 void _openSelectFolder()
@@ -634,19 +667,32 @@ long _findWindowU8(const char* className, const char* title) {
 
     string copy_className = hmc_text_util::U82A(className);
     string copy_title = hmc_text_util::U82A(title);
-    return (long)hmc_window::findWindow(copy_className, copy_title);
+    return 0L;
+    //return (long)hmc_window::findWindow(copy_className, copy_title);
 
 }
 
-long _findWindowW(const wchar_t* className, const wchar_t* title) {
+bool contains(const std::wstring& text, const std::wstring& substring)
+{
+    return text.find(substring) != text.npos;
+}
 
-    return (long)hmc_window::findWindowW(className, title);
+bool contains(const std::string& text, const std::string& substring)
+{
+    return text.find(substring) != text.npos;
+}
+
+long _findWindowW(const wchar_t* className, const wchar_t* title) {
+    HWND hwnd = ::FindWindowW(removeNullCharacters(std::wstring(className)).c_str(), nullptr);
+    return long(hwnd);
 
 }
 
 long _findWindow(const char* className, const char* title) {
- 
-    return (long)hmc_window::findWindow(className, title);
+
+    // 查找第一个符合条件的窗口
+    HWND hwnd = ::FindWindowA(removeNullCharacters(std::string(className)).c_str(), nullptr);
+    return long(hwnd);
 
 }
 
@@ -680,11 +726,12 @@ bool _has_sync_token() {
 }
 
 long _getFocusWindow() {
-   return (long) hmc_window::getFocusWindow();
+   //return (long) hmc_window::getFocusWindow();
+    return (long)::GetForegroundWindow();
 }
 
 long _getFocusTopWindow() {
-    return (long)hmc_window::getParentWindow(hmc_window::getFocusWindow())|| hmc_window::getFocusWindow();
+    return (long)hmc_window::getParentWindow(::GetForegroundWindow())|| _getFocusWindow();
 }
 
 template <typename T>
@@ -722,30 +769,32 @@ const char* hwnd_list2_long_list(vector<T> &hwnd_list) {
 }
 
 
-std::string removeNullCharacters(std::string str) {
+//std::string removeNullCharacters(std::string str) {
+//
+//    string data = string();
+//    data.append(str);
+//
+//    // 移除开头的空字符
+//    while (!data.empty() && data.front() == '\0') {
+//        data.erase(0, 1);
+//    }
+//
+//    // 移除末尾的空字符
+//    while (!data.empty() && data.back() == '\0') {
+//        data.pop_back();
+//    }
+//
+//    return data;
+//}
 
-    string data = string();
-    data.append(str);
 
-    // 移除开头的空字符
-    while (!data.empty() && data.front() == '\0') {
-        data.erase(0, 1);
-    }
-
-    // 移除末尾的空字符
-    while (!data.empty() && data.back() == '\0') {
-        data.pop_back();
-    }
-
-    return data;
-}
 
 const char* _findAllWindow(const char* className, const char* title) {
     vector<HWND> hwnd_list ;
 
     string _hwnd_list = string();
-    string _className = hmc_window::removeNullCharacters(string(className));
-    string _titleName = hmc_window::removeNullCharacters(string(title));
+    string _className = removeNullCharacters(string(className));
+    string _titleName = removeNullCharacters(string(title));
 
     HWND winEnumerable = GetTopWindow(0);
    
@@ -1080,3 +1129,124 @@ const char* _getColor_json (int x, int y) {
 
 }
 
+const char* json2pcstr(json jsondata) {
+
+    try {
+
+    std::string quoted = jsondata.dump();
+
+    char* pUTF8 = new char[quoted.size() + 1];
+
+    for (size_t i = 0; i < quoted.size(); i++)
+    {
+        char data = quoted[i];
+        pUTF8[i] = data;
+    }
+    const int end = quoted.size();
+
+    pUTF8[end] = *"\0";
+        return pUTF8;
+
+    }HMC_CHECK_CATCH;
+    return "\0";
+}
+
+// 判断是否按下三大金刚
+const char* _getBasicKeys()
+{
+    json dataBasicKeys;
+
+    try
+    {
+        dataBasicKeys.object();
+        dataBasicKeys["shift"] = bool(GetKeyState(VK_SHIFT) & 0x8000) || false;
+        dataBasicKeys["alt"] = bool(GetKeyState(VK_MENU) & 0x8000) || false;
+        dataBasicKeys["ctrl"] = bool(GetKeyState(VK_CONTROL) & 0x8000) || false;
+        dataBasicKeys["win"] = bool(GetKeyState(VK_RWIN) & 0x8000 || GetKeyState(VK_LWIN) & 0x8000) || false;
+    }HMC_CHECK_CATCH;
+
+    return json2pcstr(dataBasicKeys);
+}
+
+/**
+ * @brief 选择文件 （单个文件）
+ *
+ * @param FilePath
+ * @return true
+ * @return false
+ */
+bool SelectFile(wstring &FilePath)
+{
+    bool result = false;
+    try
+    {
+        IFileOpenDialog* pFileOpen;
+        PWSTR pszFilePath = NULL;
+
+        HRESULT hr = ::CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+            IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+        if (SUCCEEDED(hr))
+        {
+            hr = pFileOpen->Show(NULL);
+
+            // Get the file name from the dialog box.
+            if (SUCCEEDED(hr))
+            {
+                IShellItem* pItem;
+                hr = pFileOpen->GetResult(&pItem);
+                if (SUCCEEDED(hr))
+                {
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                    FilePath.append(pszFilePath);
+
+                    result = true;
+                    pItem->Release();
+                }
+            }
+            pFileOpen->Release();
+        }
+    }
+    HMC_CHECK_CATCH;
+    return result;
+    // return pszFilePath;
+}
+
+const char* _selectFile() {
+    wstring FilePath;
+    SelectFile(FilePath);
+    if (!FilePath.empty())
+    {
+        try {
+
+            std::string quoted = hmc_text_util::W2U8(FilePath);
+
+            char* pUTF8 = new char[quoted.size() + 1];
+
+            for (size_t i = 0; i < quoted.size(); i++)
+            {
+                char data = quoted[i];
+                pUTF8[i] = data;
+            }
+            const int end = quoted.size();
+            pUTF8[end] = *"\0";
+            return pUTF8;
+
+        }HMC_CHECK_CATCH;
+    }
+    return "\0";
+}
+
+
+
+bool _isKeyDown(int key)
+{
+    bool res =  (GetKeyState(key) & 0x8000) != 0;
+    
+    return res;
+}
+
+bool _openUrl(const char* Url) {
+    HINSTANCE hResult = ShellExecuteA(NULL, "open", Url, NULL, NULL, SW_SHOWNORMAL);
+    // return  _create_int64_Number(env,long(hResult));
+    return (long long(hResult) >= 31)?true:false;
+}
